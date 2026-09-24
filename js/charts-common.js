@@ -1,30 +1,41 @@
 // Shared chart styling and number formatting for the report and dashboard.
-// Colors come from the CSS custom properties in css/style.css so both pages match.
+// Colors come from the CSS custom properties in css/style.css, so charts follow
+// the night/day theme. refreshColors() re-reads them when the theme changes.
 
-const css = getComputedStyle(document.documentElement);
-const COLORS = {
-  navy: css.getPropertyValue("--navy-2").trim(),
-  red: css.getPropertyValue("--red").trim(),
-  ink: css.getPropertyValue("--ink").trim(),
-  ink2: css.getPropertyValue("--ink-2").trim(),
-  muted: css.getPropertyValue("--muted").trim(),
-  grid: css.getPropertyValue("--grid").trim(),
-  mutedBar: css.getPropertyValue("--muted-bar").trim(),
-  paper: css.getPropertyValue("--paper").trim(),
-};
+const COLORS = {};
+
+function refreshColors() {
+  const css = getComputedStyle(document.documentElement);
+  const v = (name) => css.getPropertyValue(name).trim();
+  Object.assign(COLORS, {
+    navy: v("--series-1"),      // series 1 (blue)
+    red: v("--series-2"),       // series 2 / highlight (red)
+    ink: v("--ink"),
+    ink2: v("--ink-2"),
+    muted: v("--muted"),
+    grid: v("--grid"),
+    mutedBar: v("--rule"),      // axis baseline
+    paper: v("--chart-surface"),
+    cat: [v("--cat-1"), v("--cat-2"), v("--cat-3"), v("--cat-4")],
+    catOther: v("--cat-other"),
+    tooltipBg: v("--tooltip-bg"),
+  });
+  Chart.defaults.color = COLORS.muted;
+  Chart.defaults.plugins.legend.labels.color = COLORS.ink2;
+  Chart.defaults.plugins.tooltip.backgroundColor = COLORS.tooltipBg;
+}
 
 Chart.defaults.font.family = '"Source Sans 3", system-ui, sans-serif';
 Chart.defaults.font.size = 13;
-Chart.defaults.color = COLORS.muted;
 Chart.defaults.maintainAspectRatio = false;
-Chart.defaults.animation.duration = 400;
-Chart.defaults.plugins.legend.labels.color = COLORS.ink2;
+Chart.defaults.animation.duration = window.REDUCED_MOTION ? 0 : 900;
+Chart.defaults.animation.easing = "easeOutQuart";
 Chart.defaults.plugins.legend.labels.usePointStyle = true;
 Chart.defaults.plugins.legend.labels.pointStyle = "rectRounded";
-Chart.defaults.plugins.tooltip.backgroundColor = "#14305e";
 Chart.defaults.plugins.tooltip.titleFont = { weight: "700" };
 Chart.defaults.plugins.tooltip.padding = 10;
 Chart.defaults.plugins.tooltip.cornerRadius = 6;
+refreshColors();
 
 // Formatters
 const fmt = {
@@ -34,6 +45,32 @@ const fmt = {
   pct: (v, d = 1) => (v == null || isNaN(v) ? "–" : v.toFixed(d) + "%"),
   num: (v, d = 1) => (v == null || isNaN(v) ? "–" : v.toLocaleString("en-US", { maximumFractionDigits: d, minimumFractionDigits: d })),
 };
+
+// Line animation that draws each series from left to right.
+function progressiveLine(points, duration = 1400) {
+  if (window.REDUCED_MOTION) return false;
+  const step = duration / Math.max(points, 1);
+  const prevY = (ctx) => ctx.index === 0
+    ? ctx.chart.scales.y.getPixelForValue(ctx.chart.scales.y.min)
+    : ctx.chart.getDatasetMeta(ctx.datasetIndex).data[ctx.index - 1].getProps(["y"], true).y;
+  const delay = (key) => (ctx) => {
+    if (ctx.type !== "data" || ctx[key]) return 0;
+    ctx[key] = true;
+    return ctx.index * step;
+  };
+  return {
+    x: { type: "number", easing: "linear", duration: step, from: NaN, delay: delay("xStarted") },
+    y: { type: "number", easing: "linear", duration: step, from: prevY, delay: delay("yStarted") },
+  };
+}
+
+// Bars grow from the baseline one after another.
+function staggeredBars(stepMs = 45) {
+  if (window.REDUCED_MOTION) return false;
+  return {
+    delay: (ctx) => (ctx.type === "data" && ctx.mode === "default" ? ctx.dataIndex * stepMs : 0),
+  };
+}
 
 // Base options for a line chart over years, with crosshair-style index tooltip.
 function lineOptions({ yFormat, yTitle, beginAtZero = true, xMin, xMax } = {}) {
@@ -85,6 +122,7 @@ function barOptions({ horizontal = false, valueFormat } = {}) {
     indexAxis: horizontal ? "y" : "x",
     scales: horizontal ? { x: valueAxis, y: catAxis } : { x: catAxis, y: valueAxis },
     plugins: { legend: { display: false } },
+    animation: staggeredBars(),
   };
 }
 
