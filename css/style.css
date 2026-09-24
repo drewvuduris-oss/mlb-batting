@@ -193,3 +193,105 @@ table.data td.num, table.data th.num { text-align: right; }
   .chart-box, .chart-box.tall { height: 260px; }
   .tile .value { font-size: 1.5rem; }
 }
+
+/* ---------- Dashboard ---------- */
+.hero-small { padding: 2rem 0 2.75rem; }
+.hero-small h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); }
+.hero code { background: rgba(255,255,255,0.12); padding: 0 0.3em; border-radius: 3px; }
+
+.loading { padding: 3rem 0; text-align: center; color: var(--ink-2); font-weight: 600; }
+
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+  margin-bottom: 1rem;
+}
+.panel h3 { margin: 0 0 0.5rem; font-size: 1.05rem; }
+
+.filters {
+  margin-top: -1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem 1rem;
+  align-items: end;
+}
+.field { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+.field.wide { grid-column: span 2; }
+.field label, .field .label { font-size: 0.8rem; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: 0.05em; }
+.field select {
+  font: inherit;
+  font-size: 0.95rem;
+  padding: 0.45rem 0.5rem;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  width: 100%;
+}
+.field select:focus-visible, .seg button:focus-visible, .btn-reset:focus-visible { outline: 2px solid var(--navy-2); outline-offset: 2px; }
+
+.btn-reset {
+  font: inherit;
+  font-weight: 700;
+  background: var(--red);
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+}
+.btn-reset:hover { background: #a50d26; }
+
+.switches { display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: end; }
+.switches .field:first-child { min-width: 240px; }
+.seg { display: flex; flex-wrap: wrap; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+.seg button {
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  background: #fff;
+  color: var(--ink-2);
+  border: 0;
+  border-right: 1px solid var(--rule);
+  padding: 0.45rem 0.8rem;
+  cursor: pointer;
+}
+.seg button:last-child { border-right: 0; }
+.seg button:hover { background: var(--cream); }
+.seg button.on { background: var(--navy); color: #fff; }
+
+.view-note { color: var(--ink-2); font-size: 0.92rem; margin: 0 0 0.75rem; }
+
+.dash-tiles { margin: 0 0 1rem; }
+
+.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+.chart-panel.span-2 { grid-column: span 2; }
+.chart-panel .chart-box { height: 300px; }
+
+.table-scroll { max-height: 440px; overflow: auto; }
+table.data td.hl, table.data th.hl { background: #fdf0f2; font-weight: 700; }
+table.data th.hl { background: #f6dde1; }
+table.data tfoot td { font-weight: 700; border-top: 2px solid var(--navy); background: var(--cream); position: sticky; bottom: 0; }
+
+@media (max-width: 800px) {
+  .chart-grid { grid-template-columns: 1fr; }
+  .chart-panel.span-2 { grid-column: auto; }
+  .field.wide { grid-column: auto; }
+}
+
+/* Grid children may shrink below their content width (charts, tables) instead of widening the page. */
+.chart-grid > *, .filters > *, .tiles > * { min-width: 0; }
+@media (max-width: 800px) {
+  .chart-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .nav-inner { gap: 0.4rem 1rem; }
+  .nav-brand { flex-basis: 100%; }
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .switches .field:first-child { min-width: 0; width: 100%; }
+  .field-btn { grid-column: span 2; }
+  .tile .value { font-size: 1.3rem; }
+}
