@@ -43,11 +43,12 @@ def rates(g: pd.DataFrame) -> dict:
         "SLG": (singles + 2 * s["2B"] + 3 * s["3B"] + 4 * s.HR) / s.AB,
         "HRpct": s.HR / s.PA * 100,
         "Kpct": so.SO.sum() / so.PA.sum() * 100,
+        "BBpct": s.BB / s.PA * 100,
         "singlesPct": singles / s.H * 100,
     }
 
 
-def rnd(obj, nd=4):
+def rnd(obj, nd=6):
     """Round floats in nested dicts/lists for a tidy JSON file."""
     if isinstance(obj, float):
         return round(obj, nd)
@@ -112,6 +113,8 @@ def main() -> None:
     # ---- Career home run leaders (all leagues in the data) -------------------------
     car = d.groupby(["playerID", "name"]).agg(HR=("HR", "sum"), first=("year", "min"),
                                               last=("year", "max")).reset_index()
+    # People.csv has no name suffix, so father and son share "Ken Griffey".
+    car.loc[car.playerID == "griffke02", "name"] = "Ken Griffey Jr."
     career_hr = (car.nlargest(10, "HR")[["name", "HR", "first", "last"]]
                  .to_dict("records"))
 

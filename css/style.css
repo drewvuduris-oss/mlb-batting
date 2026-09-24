@@ -1,0 +1,195 @@
+/* Shared styles for the report (index.html) and dashboard (dashboard.html).
+   Theme: classic ballpark - navy and red on cream, scoreboard-style headline. */
+
+:root {
+  --navy: #14305e;
+  --navy-2: #1d4e89;      /* chart series 1 */
+  --red: #c8102e;         /* chart series 2 / accent */
+  --cream: #f6f0e1;       /* page */
+  --paper: #fffdf7;       /* cards and chart surface */
+  --ink: #1c1b18;
+  --ink-2: #4d4a42;
+  --muted: #857f72;
+  --grid: #e8e1d0;
+  --rule: #d9d0bb;
+  --muted-bar: #c9c0ab;   /* non-highlighted bars */
+
+  --font-display: "Graduate", Georgia, serif;
+  --font-head: "Roboto Slab", Georgia, serif;
+  --font-body: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--cream);
+}
+
+/* ---------- Navigation (shared) ---------- */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--navy);
+  border-bottom: 4px solid var(--red);
+}
+.nav-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0.7rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.nav-brand {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: #fff;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  margin-right: auto;
+}
+.nav a.nav-link {
+  color: #d8def0;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.2rem 0;
+  border-bottom: 2px solid transparent;
+}
+.nav a.nav-link:hover { color: #fff; }
+.nav a.nav-link.active { color: #fff; border-bottom-color: var(--red); }
+
+/* ---------- Layout ---------- */
+.wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+.narrow { max-width: 760px; }
+
+/* ---------- Hero ---------- */
+.hero {
+  background: var(--navy);
+  color: #fff;
+  padding: 3rem 0 2.5rem;
+  background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0 40px, transparent 40px 80px);
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1.1;
+  margin: 0 0 0.5rem;
+  letter-spacing: 0.02em;
+}
+.hero .byline { color: #c9d1e6; margin: 0 0 1.25rem; }
+.hero .summary { font-size: 1.15rem; max-width: 760px; margin: 0; color: #eef1f8; }
+
+h2, h3 { font-family: var(--font-head); color: var(--navy); line-height: 1.25; }
+
+/* ---------- Scoreboard stat tiles ---------- */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+  margin: -1.5rem 0 2.5rem;
+}
+.tile {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-top: 4px solid var(--red);
+  border-radius: 6px;
+  padding: 0.9rem 1rem;
+}
+.tile .value {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 1.9rem;
+  color: var(--navy);
+  line-height: 1.1;
+}
+.tile .label { font-size: 0.9rem; color: var(--ink-2); margin-top: 0.25rem; }
+
+/* ---------- Report sections ---------- */
+.finding {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 1.5rem 1.5rem 1.25rem;
+  margin: 0 0 1.5rem;
+}
+.finding .kicker {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin: 0;
+}
+.finding h2 { margin: 0.2rem 0 0.75rem; font-size: 1.45rem; }
+.finding p { margin: 0 0 0.9rem; color: var(--ink-2); }
+.finding p strong { color: var(--ink); }
+
+.chart-box { position: relative; height: 320px; margin-top: 0.5rem; }
+.chart-box.tall { height: 380px; }
+.chart-box.short { height: 200px; }
+.chart-caption { font-size: 0.85rem; color: var(--muted); margin: 0.4rem 0 0; }
+
+.part-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  color: var(--navy);
+  font-size: 1.5rem;
+  border-bottom: 2px solid var(--navy);
+  padding-bottom: 0.3rem;
+  margin: 2.5rem 0 1rem;
+}
+
+.about { background: var(--paper); border: 1px solid var(--rule); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; }
+.about h2 { margin-top: 0; }
+.about h3 { font-size: 1.05rem; margin: 1.25rem 0 0.4rem; }
+.about p, .about li { color: var(--ink-2); }
+.about code { background: var(--cream); padding: 0 0.3em; border-radius: 3px; font-size: 0.92em; }
+
+.cta {
+  display: inline-block;
+  background: var(--red);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 0.6rem 1.1rem;
+  border-radius: 6px;
+}
+.cta:hover { background: #a50d26; }
+
+footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  padding: 2rem 1rem 3rem;
+}
+
+/* ---------- Tables (shared) ---------- */
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  font-variant-numeric: tabular-nums;
+}
+table.data th, table.data td { padding: 0.45rem 0.6rem; border-bottom: 1px solid var(--grid); }
+table.data th { text-align: left; color: var(--navy); font-family: var(--font-head); font-size: 0.85rem; background: var(--cream); position: sticky; top: 0; }
+table.data td.num, table.data th.num { text-align: right; }
+
+@media (max-width: 600px) {
+  .finding { padding: 1.1rem 1rem 1rem; }
+  .chart-box, .chart-box.tall { height: 260px; }
+  .tile .value { font-size: 1.5rem; }
+}
