@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="night">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +7,9 @@
   <meta name="description" content="Filter 106,470 MLB batting lines from 1871 to 2025 and see the numbers change.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Graduate&family=Roboto+Slab:wght@500;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Graduate&family=Orbitron:wght@500;700&family=Roboto+Slab:wght@500;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <script src="js/site.js"></script>
 </head>
 <body>
 
@@ -18,6 +19,7 @@
       <a class="nav-link" href="index.html">Report</a>
       <a class="nav-link active" href="dashboard.html">Dashboard</a>
       <a class="nav-link" href="index.html#about-data">About the Data</a>
+      <button class="theme-toggle" id="theme-toggle" type="button"><span class="knob" aria-hidden="true"></span><span class="txt">Night game</span></button>
     </div>
   </nav>
 
@@ -31,7 +33,7 @@
 
   <main class="wrap">
 
-    <div id="loading" class="loading">Loading 106,470 batting lines…</div>
+    <div id="loading" class="loading"><span class="ball" aria-hidden="true"></span>Loading 106,470 batting lines…</div>
 
     <div id="dash" hidden>
       <!-- Filters -->
@@ -93,7 +95,10 @@
       <p class="view-note" id="view-note"></p>
 
       <!-- Summary numbers -->
-      <section class="tiles dash-tiles" id="tiles" aria-label="Summary numbers"></section>
+      <section class="scoreboard dash-board" aria-label="Summary numbers">
+        <p class="board-title">★ CURRENT VIEW ★</p>
+        <div class="tiles" id="tiles"></div>
+      </section>
 
       <!-- Charts -->
       <section class="chart-grid">

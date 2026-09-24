@@ -23,8 +23,7 @@ function pct(n, d) { return d > 0 ? (n / d) * 100 : null; }
 
 // ---------- Breakdowns ----------------------------------------------------------
 // Fixed category orders and fixed colors, so a category keeps its color when filters change.
-const PALETTE = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100"];
-const OTHER_COLOR = "#9a9486";
+// Series colors come from the theme (COLORS.cat / COLORS.catOther in charts-common.js).
 const TOP_COUNTRIES = ["USA", "Dominican Republic", "Venezuela", "Cuba", "Puerto Rico", "Canada", "Mexico", "Japan"];
 
 const BREAKDOWNS = {
@@ -121,9 +120,19 @@ function renderTiles(t) {
     [fmt.int(t.HR), "Home runs"],
     [fmt.pct(MEASURES.Kpct.calc(t)), "Strikeout rate"],
   ];
-  $("tiles").innerHTML = tiles
-    .map(([v, l]) => `<div class="tile"><div class="value">${v}</div><div class="label">${l}</div></div>`)
-    .join("");
+  const box = $("tiles");
+  if (!box.children.length) {
+    box.innerHTML = tiles
+      .map(([, l]) => `<div class="board-tile"><span class="sb-value"></span><span class="label">${l}</span></div>`)
+      .join("");
+  }
+  // Scoreboard digits flip only where the number changed.
+  box.querySelectorAll(".sb-value").forEach((el, i) => {
+    const v = tiles[i][0];
+    if (el.dataset.value === v) return;
+    el.dataset.value = v;
+    flapTo(el, v, { spins: 3, stagger: 45 });
+  });
 }
 
 function setChart(id, config) {
@@ -141,7 +150,7 @@ function renderTrend(rows, m, bd, groups, cats) {
     if (state.by === "country") top = TOP_COUNTRIES.slice(0, 4).filter((c) => groups.has(c));
     const rest = cats.filter((c) => !top.includes(c));
     series = top.map((c, i) => ({ name: c, test: (k) => k === c, color: fixedColor(c, i) }));
-    if (rest.length) series.push({ name: rest.length === 1 ? rest[0] : "All other", test: (k) => !top.includes(k), color: OTHER_COLOR });
+    if (rest.length) series.push({ name: rest.length === 1 ? rest[0] : "All other", test: (k) => !top.includes(k), color: COLORS.catOther });
   }
 
   const byYear = series.map(() => new Map());
@@ -161,6 +170,8 @@ function renderTrend(rows, m, bd, groups, cats) {
     borderColor: s.color,
     backgroundColor: s.color,
     pointHoverBackgroundColor: s.color,
+    pointBackgroundColor: s.color,
+    pointRadius: state.to - state.from < 3 ? 4 : 0, // a very short range has too few points to draw a line
     spanGaps: false,
   }));
 
@@ -181,10 +192,10 @@ function fixedColor(cat, i) {
   const bd = BREAKDOWNS[state.by];
   if (bd.order) {
     const idx = bd.order.indexOf(cat);
-    if (cat === "Unknown" || cat === "Other") return OTHER_COLOR;
-    if (idx > -1 && idx < PALETTE.length) return PALETTE[idx];
+    if (cat === "Unknown" || cat === "Other") return COLORS.catOther;
+    if (idx > -1 && idx < COLORS.cat.length) return COLORS.cat[idx];
   }
-  return PALETTE[i % PALETTE.length];
+  return COLORS.cat[i % COLORS.cat.length];
 }
 
 // Chart 2: measure for each breakdown category.
@@ -400,6 +411,7 @@ Papa.parse("data/batting_clean.csv", {
     $("dash").hidden = false;
     buildControls();
     render();
+    window.addEventListener("themechange", () => { refreshColors(); render(); });
   },
   error: (err) => {
     $("loading").textContent = "The data file could not be loaded. If you opened this page directly from disk, serve the folder instead (see README).";
