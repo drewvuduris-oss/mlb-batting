@@ -118,6 +118,12 @@ def main() -> None:
     career_hr = (car.nlargest(10, "HR")[["name", "HR", "first", "last"]]
                  .to_dict("records"))
 
+    # ---- Career batting average leaders (AL + NL, at least 5,000 at-bats) ----------------
+    mc = mlb.groupby(["playerID", "name"]).agg(H=("H", "sum"), AB=("AB", "sum"),
+                                               first=("year", "min"), last=("year", "max")).reset_index()
+    mc = mc[mc.AB >= 5000].assign(AVG=lambda x: x.H / x.AB)
+    career_avg = mc.nlargest(5, "AVG")[["name", "AVG", "H", "AB", "first", "last"]].to_dict("records")
+
     # ---- Headline facts cited in the text ------------------------------------------
     so_gt_h = yr[yr.SO > yr.H].index
     since68 = yr.loc[1969:, "AVG"]
@@ -141,7 +147,7 @@ def main() -> None:
     }
 
     out = rnd({"facts": facts, "yearly": yearly, "eras": eras, "foreign": foreign,
-               "hand": hand, "careerHR": career_hr})
+               "hand": hand, "careerHR": career_hr, "careerAVG": career_avg})
     OUT.write_text(json.dumps(out, indent=1))
     print(f"Wrote {OUT.relative_to(ROOT)}")
 

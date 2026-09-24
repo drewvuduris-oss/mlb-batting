@@ -2911,5 +2911,47 @@
    "first": 1956,
    "last": 1976
   }
+ ],
+ "careerAVG": [
+  {
+   "name": "Ty Cobb",
+   "AVG": 0.366299,
+   "H": 4189,
+   "AB": 11436,
+   "first": 1905,
+   "last": 1928
+  },
+  {
+   "name": "Rogers Hornsby",
+   "AVG": 0.358497,
+   "H": 2930,
+   "AB": 8173,
+   "first": 1915,
+   "last": 1937
+  },
+  {
+   "name": "Billy Hamilton",
+   "AVG": 0.350356,
+   "H": 1969,
+   "AB": 5620,
+   "first": 1890,
+   "last": 1901
+  },
+  {
+   "name": "Ed Delahanty",
+   "AVG": 0.349492,
+   "H": 2444,
+   "AB": 6993,
+   "first": 1888,
+   "last": 1903
+  },
+  {
+   "name": "Tris Speaker",
+   "AVG": 0.344679,
+   "H": 3514,
+   "AB": 10195,
+   "first": 1907,
+   "last": 1928
+  }
  ]
 }
