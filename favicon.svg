@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Swing and a Miss emblem">
+  <!-- Original emblem for this site: crossed bats and a ball inside a double ring. -->
+  <circle cx="100" cy="100" r="92" fill="#f2ebdc" stroke="#1e1a15" stroke-width="7"/>
+  <circle cx="100" cy="100" r="78" fill="none" stroke="#1e1a15" stroke-width="2.5"/>
+  <g fill="#1e1a15">
+    <g transform="rotate(38 100 100)">
+      <path d="M97.4 158 L96.6 116 Q94.6 84 93.6 60 Q93.4 44 100 43 Q106.6 44 106.4 60 Q105.4 84 103.4 116 L102.6 158 Z"/>
+      <ellipse cx="100" cy="160" rx="6" ry="3"/>
+    </g>
+    <g transform="rotate(-38 100 100)">
+      <path d="M97.4 158 L96.6 116 Q94.6 84 93.6 60 Q93.4 44 100 43 Q106.6 44 106.4 60 Q105.4 84 103.4 116 L102.6 158 Z"/>
+      <ellipse cx="100" cy="160" rx="6" ry="3"/>
+    </g>
+  </g>
+  <circle cx="100" cy="100" r="19" fill="#f2ebdc" stroke="#1e1a15" stroke-width="3.5"/>
+  <g fill="none" stroke="#8f2a20" stroke-width="3" stroke-linecap="round">
+    <path d="M89 87 Q97 100 89 113"/>
+    <path d="M111 87 Q103 100 111 113"/>
+  </g>
+</svg>
