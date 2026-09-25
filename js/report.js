@@ -1,7 +1,54 @@
-// Report page: draws the charts from data/report_numbers.json (made by
-// scripts/report_stats.py) as each one scrolls into view, redraws them when the
-// night/day theme changes, and runs the scoreboard flip cards.
+// Report page: the opening scroll steps, photo drift, scoreboard flip cards, and
+// the ten charts, drawn from data/report_numbers.json (made by scripts/report_stats.py)
+// as each one scrolls into view.
 
+// ---------- Opening: which text step shows depends on scroll through the hero ----------
+(function hero() {
+  const el = document.getElementById("hero");
+  const steps = [...el.querySelectorAll(".step")];
+  const cue = el.querySelector(".scroll-cue");
+  window.heroProgress = 0;
+
+  function update() {
+    const span = el.offsetHeight - innerHeight;
+    const p = span > 0 ? Math.min(1, Math.max(0, -el.getBoundingClientRect().top / span)) : 0;
+    window.heroProgress = p;
+    const active = window.REDUCED_MOTION ? 0 : p < 0.34 ? 0 : p < 0.67 ? 1 : 2;
+    steps.forEach((s, i) => {
+      s.classList.toggle("on", i === active);
+      s.setAttribute("aria-hidden", i === active ? "false" : "true");
+    });
+    if (cue) cue.style.opacity = p > 0.05 ? "0" : "1";
+
+    // Photographs drift a few pixels while in view (slow parallax)
+    if (!window.REDUCED_MOTION) {
+      document.querySelectorAll(".photo, .banner").forEach((fig) => {
+        const r = fig.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > innerHeight) return;
+        const t = (r.top + r.height / 2 - innerHeight / 2) / innerHeight; // about -1..1 around center
+        fig.style.setProperty("--drift", `${(-t * 20 - (fig.classList.contains("banner") ? 30 : 20)).toFixed(1)}px`);
+      });
+    }
+  }
+  addEventListener("scroll", update, { passive: true });
+  addEventListener("resize", update);
+  update();
+})();
+
+// ---------- Scoreboard: plates slide in one after another; cards flip ----------
+(function scoreboard() {
+  const board = document.getElementById("board");
+  if (!board) return;
+  board.querySelectorAll(".plate-num span").forEach((s, i) => (s.style.transitionDelay = `${250 + i * 110}ms`));
+  board.querySelectorAll(".plate-card").forEach((card) => {
+    card.addEventListener("click", () => {
+      const on = card.classList.toggle("flipped");
+      card.setAttribute("aria-pressed", String(on));
+    });
+  });
+})();
+
+// ---------- Charts ----------
 const pts = (rows, key, from = 0) =>
   rows.filter((r) => r.year >= from).map((r) => ({ x: r.year, y: r[key] }));
 
@@ -13,7 +60,7 @@ const seriesLabels = {
     if (!opts || !opts.atYear) return;
     const { ctx } = chart;
     ctx.save();
-    ctx.font = '600 13px "Source Sans 3", system-ui, sans-serif';
+    ctx.font = '600 14px "Inter", system-ui, sans-serif';
     ctx.fillStyle = COLORS.ink2;
     ctx.textAlign = "center";
     chart.data.datasets.forEach((ds, i) => {
@@ -22,7 +69,7 @@ const seriesLabels = {
       if (!pt) return;
       const above = opts.above[i];
       ctx.textBaseline = above ? "bottom" : "top";
-      ctx.fillText(ds.label, pt.x, pt.y + (above ? -8 : 8));
+      ctx.fillText(ds.label, pt.x, pt.y + (above ? -10 : 10));
     });
     ctx.restore();
   },
@@ -40,7 +87,7 @@ function singleLine(id, rows, key, { from = 0, color = COLORS.navy, label, yForm
         label,
         data,
         borderColor: color,
-        backgroundColor: color + "22",
+        backgroundColor: color + "1c",
         fill: true,
         pointHoverBackgroundColor: color,
       }],
@@ -51,17 +98,19 @@ function singleLine(id, rows, key, { from = 0, color = COLORS.navy, label, yForm
 
 // Bars where one category is the story: it gets the accent, the rest the base color.
 function highlightBars(id, labels, values, highlight, { horizontal = false, format, tipLabel }) {
+  if (!horizontal && labels.length > 4 && isNarrow(document.getElementById(id))) horizontal = true;
+  if (horizontal) fitBarHeight(document.getElementById(id), labels);
+  else document.getElementById(id).parentElement.style.height = "";
   const colors = labels.map((l) => (highlight.includes(l) ? COLORS.red : COLORS.navy));
   const options = barOptions({ horizontal, valueFormat: format });
   options.plugins.barValueLabels = { format };
   options.plugins.tooltip = { callbacks: { label: (item) => `${tipLabel}: ${format(item.raw)}` } };
-  if (horizontal) options.layout = { padding: { right: 40 } };
-  else options.layout = { padding: { top: 18 } };
+  options.layout = horizontal ? { padding: { right: 52 } } : { padding: { top: 24 } };
   const ds = horizontal ? horizontalBarDataset(values, colors, tipLabel) : barDataset(values, colors, tipLabel);
   return new Chart(document.getElementById(id), { type: "bar", data: { labels, datasets: [ds] }, options });
 }
 
-// One builder per chart, keyed by canvas id. Each returns a Chart.
+// One builder per chart, keyed by canvas id.
 function chartBuilders(data) {
   const yearly = data.yearly;
   const eraLabels = data.eras.map((e) => e.era);
@@ -69,7 +118,6 @@ function chartBuilders(data) {
     // 1. Strikeouts vs hits
     "chart-so-h": () => {
       const options = lineOptions({ yFormat: (v) => fmt.int(v), xMin: 1901, xMax: 2025 });
-      options.plugins.legend = { display: true, position: "top", align: "start" };
       options.plugins.seriesLabels = { atYear: 1940, above: [true, false] };
       options.plugins.tooltip.callbacks.label = (item) => `${item.dataset.label}: ${fmt.int(item.parsed.y)}`;
       options.animation = progressiveLine(125);
@@ -122,7 +170,7 @@ function chartBuilders(data) {
       options.scales.x.type = "linear";
       options.scales.x.min = 1900;
       options.scales.x.max = 2026;
-      options.scales.x.ticks = { stepSize: 20, includeBounds: false, callback: (v) => String(v), color: COLORS.muted };
+      options.scales.x.ticks = { stepSize: 20, includeBounds: false, maxRotation: 0, autoSkip: true, autoSkipPadding: 16, callback: (v) => String(v), color: COLORS.muted };
       options.scales.x.offset = true;
       options.plugins.tooltip = {
         callbacks: {
@@ -138,7 +186,7 @@ function chartBuilders(data) {
         data: {
           datasets: [{
             ...barDataset(rows.map((r) => ({ x: r.year, y: r.hitters300 })), rows.map((r) => (r.year === 1999 || r.year === 2025 || r.year === 1930 ? COLORS.red : COLORS.navy)), ".300 hitters"),
-            barPercentage: 1, categoryPercentage: 1, borderRadius: 2,
+            barPercentage: 1, categoryPercentage: 1, borderRadius: 1,
           }],
         },
         options,
@@ -168,70 +216,27 @@ function chartBuilders(data) {
   };
 }
 
-async function main() {
-  const res = await fetch("data/report_numbers.json");
-  const data = await res.json();
-  const builders = chartBuilders(data);
-  const built = {};
-
-  // Draw each chart the first time it scrolls into view, so the animation is seen.
-  Object.entries(builders).forEach(([id, build]) => {
-    whenVisible(document.getElementById(id), () => { built[id] = build(); });
-  });
-
-  // Theme change: re-read the colors and redraw every chart already on the page.
-  window.addEventListener("themechange", () => {
-    refreshColors();
-    Object.keys(built).forEach((id) => {
-      built[id].destroy();
-      built[id] = builders[id]();
+// Charts measure their labels when drawn, so wait for the web fonts first
+// (otherwise labels are sized for the fallback font and can be clipped).
+Promise.all([fetch("data/report_numbers.json").then((res) => res.json()), document.fonts.ready])
+  .then(([data]) => {
+    // Draw each chart the first time it scrolls into view, so the animation is seen.
+    const builders = chartBuilders(data);
+    const built = {};
+    Object.entries(builders).forEach(([id, build]) => {
+      whenVisible(document.getElementById(id), () => { built[id] = build(); }, "0px 0px -15% 0px");
+    });
+    // Category charts change layout on narrow screens; redraw them if the width crosses that point.
+    let narrow = innerWidth < 700;
+    addEventListener("resize", () => {
+      if ((innerWidth < 700) === narrow) return;
+      narrow = innerWidth < 700;
+      Object.keys(built).forEach((id) => { built[id].destroy(); built[id] = builders[id](); });
+    });
+  })
+  .catch((err) => {
+    console.error(err);
+    document.querySelectorAll(".chart-box").forEach((b) => {
+      b.innerHTML = '<p class="note">Chart data could not be loaded. If you opened this file directly, serve the folder instead (see README).</p>';
     });
   });
-}
-
-main().catch((err) => {
-  console.error(err);
-  document.querySelectorAll(".chart-box").forEach((b) => {
-    b.innerHTML = '<p class="chart-caption">Chart data could not be loaded. If you opened this file directly, serve the folder instead (see README).</p>';
-  });
-});
-
-// ---------- Scoreboard flip cards --------------------------------------------------
-// Each card flips its digits into place when the board scrolls into view, tilts
-// toward the pointer, and flips over on click (or Enter/Space) to show the method.
-(function scoreboard() {
-  const board = document.querySelector(".scoreboard");
-  if (!board) return;
-  const cards = board.querySelectorAll(".flip-card");
-
-  cards.forEach((card) => {
-    const value = card.querySelector(".sb-value");
-    value.textContent = value.dataset.value; // readable before the animation runs
-
-    card.addEventListener("click", () => {
-      const on = card.classList.toggle("flipped");
-      card.setAttribute("aria-pressed", on);
-    });
-
-    if (window.REDUCED_MOTION) return;
-    card.addEventListener("pointermove", (e) => {
-      if (e.pointerType !== "mouse") return;
-      const r = card.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width - 0.5;
-      const y = (e.clientY - r.top) / r.height - 0.5;
-      card.style.setProperty("--ry", `${x * 18}deg`);
-      card.style.setProperty("--rx", `${-y * 14}deg`);
-    });
-    card.addEventListener("pointerleave", () => {
-      card.style.setProperty("--ry", "0deg");
-      card.style.setProperty("--rx", "0deg");
-    });
-  });
-
-  whenVisible(board, () => {
-    cards.forEach((card, i) => {
-      const value = card.querySelector(".sb-value");
-      setTimeout(() => flapTo(value, value.dataset.value), i * 180);
-    });
-  }, "0px 0px -20% 0px");
-})();

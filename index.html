@@ -1,321 +1,337 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="night">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Swing and a Miss: 155 Years of MLB Batting</title>
-  <meta name="description" content="A report on how MLB hitting has changed from 1871 to 2025, built from the Lahman Baseball Database.">
+  <title>The Box Score: A Statistical History of Major League Batting</title>
+  <meta name="description" content="How 155 seasons of major league hitters traded contact for power, told through 106,470 batting lines from the Lahman Baseball Database.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Graduate&family=Orbitron:wght@500;700&family=Roboto+Slab:wght@500;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600&family=Inter:wght@400;500;600&family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-  <script src="js/site.js"></script>
+  <script type="importmap">
+    { "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    } }
+  </script>
 </head>
 <body>
 
-  <nav class="nav">
-    <div class="nav-inner">
-      <a class="nav-brand" href="index.html">⚾ MLB BATTING</a>
-      <a class="nav-link active" href="index.html">Report</a>
-      <a class="nav-link" href="dashboard.html">Dashboard</a>
-      <a class="nav-link" href="#about-data">About the Data</a>
-      <button class="theme-toggle" id="theme-toggle" type="button"><span class="knob" aria-hidden="true"></span><span class="txt">Night game</span></button>
+  <nav class="nav" aria-label="Main">
+    <div class="wrap nav-inner">
+      <a class="brand" href="index.html"><img src="img/emblem-mark.svg" alt="" width="34" height="34"><span>The Box Score</span></a>
+      <a class="link active" href="index.html" aria-current="page">Report</a>
+      <a class="link" href="dashboard.html">Dashboard</a>
+      <a class="link hide-sm" href="#about-data">About the Data</a>
     </div>
-    <div class="progress" aria-hidden="true"></div>
   </nav>
 
-  <header class="hero3d" id="hero">
-    <div class="stage">
-      <div class="hero-fallback" id="hero-fallback"></div>
-      <canvas id="hero-canvas" aria-hidden="true"></canvas>
-      <div class="hero-copy">
-        <div class="wrap">
-          <span class="eyebrow">MLB · 1871–2025</span>
-          <h1>Swing and a Miss: <span class="accent">155 Years</span> of MLB Batting</h1>
-          <p class="byline">By Drew Vuduris · Data: Lahman Baseball Database, 1871–2025</p>
+  <!-- Opening: an old baseball as the product shot; three scroll steps beside it -->
+  <header class="hero" id="hero">
+    <div class="wrap stage">
+      <div class="copy">
+        <div class="step on" data-step="0">
+          <p class="eyebrow">A statistical history of major league batting, <span class="nowrap">1871–2025</span></p>
+          <h1>The Box Score</h1>
+          <p class="sub">How 155 seasons of hitters traded contact for power, told through 106,470 batting lines.</p>
+          <p class="byline">By Drew Vuduris</p>
+        </div>
+        <div class="step" data-step="1" aria-hidden="true">
+          <p class="big-stat">7,247</p>
+          <p class="stat-line">strikeouts by American and National League batters in 1920, against 23,275 hits.</p>
+        </div>
+        <div class="step" data-step="2" aria-hidden="true">
+          <p class="big-stat red">40,645</p>
+          <p class="stat-line">strikeouts in 2025. For the eighth season in a row, more than the league's hits.</p>
         </div>
       </div>
-      <div class="scroll-hint" aria-hidden="true">Scroll to play ball<br>↓</div>
+      <div class="ball-wrap" aria-hidden="true">
+        <div class="ball-shadow"></div>
+        <div class="ball-fallback" id="ball-fallback"></div>
+        <canvas id="ball"></canvas>
+      </div>
+      <div class="scroll-cue" aria-hidden="true">Scroll</div>
     </div>
   </header>
 
   <main class="wrap">
 
-    <section class="intro">
-      <p class="summary-card">
-        This report uses every batting line in the Lahman Baseball Database — 106,470 player-team-seasons
-        from 1871 through 2025 — to trace how hitting in the major leagues has changed. The short version:
-        hitters today swing for power and strike out more than ever. Strikeouts have outnumbered hits every
-        season since 2018, the league batting average is near its lowest level since 1968, and the .300
-        hitter has almost disappeared. Along the way the player pool has changed too: nearly three in ten
-        players are now born outside the United States.
-      </p>
-    </section>
+    <p class="lead reveal"><span class="dropcap">T</span>his report uses every batting line in the Lahman Baseball Database — 106,470 player-team-seasons from 1871 through 2025 — to trace how hitting in the major leagues has changed. The short version: hitters today swing for power and strike out more than ever. Strikeouts have outnumbered hits every season since 2018, the league batting average is near its lowest level since 1968, and the .300 hitter has almost disappeared. Along the way the player pool has changed too: nearly three in ten players are now born outside the United States.</p>
 
-    <section class="scoreboard reveal" aria-label="Headline numbers">
-      <p class="board-title">★ THE SCOREBOARD ★</p>
-      <div class="tiles">
-        <button class="flip-card" type="button" aria-pressed="false">
-          <span class="flip-inner">
-            <span class="face front">
-              <span class="sb-value" data-value="106,470"></span>
-              <span class="label">Batting lines analyzed (player, team, season)</span>
-              <span class="hint">Tap to see how ↻</span>
-            </span>
-            <span class="face back"><strong>How it's counted</strong>128,598 rows in Batting.csv, minus 22,128 lines with zero at-bats.</span>
+    <section class="board reveal" id="board" aria-label="Headline numbers">
+      <div class="board-head">
+        <h2>BY THE NUMBERS</h2>
+        <p>Select a number to see how it was calculated.</p>
+      </div>
+      <div class="plates">
+        <button class="plate-card" type="button" aria-pressed="false">
+          <span class="plate-inner">
+            <span class="side front"><span class="plate-num"><span>106,470</span></span><span class="plate-label">Batting lines analyzed (player, team, season)</span><span class="plate-how">How it's counted</span></span>
+            <span class="side back"><strong>How it's counted</strong>128,598 rows in Batting.csv, minus 22,128 lines with zero at-bats.</span>
           </span>
         </button>
-        <button class="flip-card" type="button" aria-pressed="false">
-          <span class="flip-inner">
-            <span class="face front">
-              <span class="sb-value" data-value="20,995"></span>
-              <span class="label">Players who batted, 1871–2025</span>
-              <span class="hint">Tap to see how ↻</span>
-            </span>
-            <span class="face back"><strong>How it's counted</strong>Distinct player IDs across the 106,470 batting lines, all leagues.</span>
+        <button class="plate-card" type="button" aria-pressed="false">
+          <span class="plate-inner">
+            <span class="side front"><span class="plate-num"><span>20,995</span></span><span class="plate-label">Players who batted, 1871–2025</span><span class="plate-how">How it's counted</span></span>
+            <span class="side back"><strong>How it's counted</strong>Distinct player IDs across the 106,470 batting lines, all leagues.</span>
           </span>
         </button>
-        <button class="flip-card" type="button" aria-pressed="false">
-          <span class="flip-inner">
-            <span class="face front">
-              <span class="sb-value" data-value="23.4%"></span>
-              <span class="label">Record strikeout rate, 2020 (AL/NL)</span>
-              <span class="hint">Tap to see how ↻</span>
-            </span>
-            <span class="face back"><strong>How it's calculated</strong>15,586 strikeouts ÷ 66,470 plate appearances, AL + NL, in the 60-game 2020 season.</span>
+        <button class="plate-card" type="button" aria-pressed="false">
+          <span class="plate-inner">
+            <span class="side front"><span class="plate-num"><span>23.4%</span></span><span class="plate-label">Record strikeout rate, 2020 (AL/NL)</span><span class="plate-how">How it's calculated</span></span>
+            <span class="side back"><strong>How it's calculated</strong>15,586 strikeouts ÷ 66,470 plate appearances, AL + NL, in the 60-game 2020 season.</span>
           </span>
         </button>
-        <button class="flip-card" type="button" aria-pressed="false">
-          <span class="flip-inner">
-            <span class="face front">
-              <span class="sb-value" data-value="2018"></span>
-              <span class="label">First season strikeouts outnumbered hits</span>
-              <span class="hint">Tap to see how ↻</span>
-            </span>
-            <span class="face back"><strong>How it's found</strong>AL + NL batters struck out 41,207 times and had 41,018 hits — the first season strikeouts came out ahead.</span>
+        <button class="plate-card" type="button" aria-pressed="false">
+          <span class="plate-inner">
+            <span class="side front"><span class="plate-num"><span>2018</span></span><span class="plate-label">First season strikeouts outnumbered hits</span><span class="plate-how">How it's found</span></span>
+            <span class="side back"><strong>How it's found</strong>AL + NL batters struck out 41,207 times and had 41,018 hits — the first season strikeouts came out ahead.</span>
           </span>
         </button>
-        <button class="flip-card" type="button" aria-pressed="false">
-          <span class="flip-inner">
-            <span class="face front">
-              <span class="sb-value" data-value="762"></span>
-              <span class="label">Career home run record (Barry Bonds)</span>
-              <span class="hint">Tap to see how ↻</span>
-            </span>
-            <span class="face back"><strong>How it's counted</strong>Barry Bonds's home runs added up across all his batting lines, 1986–2007.</span>
+        <button class="plate-card" type="button" aria-pressed="false">
+          <span class="plate-inner">
+            <span class="side front"><span class="plate-num"><span>762</span></span><span class="plate-label">Career home run record (Barry Bonds)</span><span class="plate-how">How it's counted</span></span>
+            <span class="side back"><strong>How it's counted</strong>Barry Bonds's home runs added up across all his batting lines, 1986–2007.</span>
           </span>
         </button>
-        <button class="flip-card" type="button" aria-pressed="false">
-          <span class="flip-inner">
-            <span class="face front">
-              <span class="sb-value" data-value="28.8%"></span>
-              <span class="label">Players born outside the US, 2020s</span>
-              <span class="hint">Tap to see how ↻</span>
-            </span>
-            <span class="face back"><strong>How it's calculated</strong>466 of the 1,616 AL + NL players of 2020–25 with a known birthplace were born outside the US.</span>
+        <button class="plate-card" type="button" aria-pressed="false">
+          <span class="plate-inner">
+            <span class="side front"><span class="plate-num"><span>28.8%</span></span><span class="plate-label">Players born outside the US, 2020s</span><span class="plate-how">How it's calculated</span></span>
+            <span class="side back"><strong>How it's calculated</strong>466 of the 1,616 AL + NL players of 2020–25 with a known birthplace were born outside the US.</span>
           </span>
         </button>
       </div>
     </section>
 
-    <p style="margin:0 0 1rem"><a class="cta" href="dashboard.html">Explore the data yourself <span aria-hidden="true">→</span></a></p>
+    <div class="cta-row reveal">
+      <a class="button" href="dashboard.html">Explore the dashboard <span aria-hidden="true">→</span></a>
+      <p class="cta-note">Filter every batting line by season, team, league, batting hand and birthplace.</p>
+    </div>
 
     <!-- ================= PART 1 ================= -->
-    <h2 class="part-title reveal"><span class="num">PART 1</span>Home Runs vs. Strikeouts</h2>
+    <div class="part reveal"><span class="num">Part one</span><h2>Home Runs vs. Strikeouts</h2></div>
 
-    <section class="finding reveal" id="f1">
-      <span class="inning" aria-hidden="true">1</span>
-      <p class="kicker">1st Inning · Finding 1</p>
-      <h2>Strikeouts have outnumbered hits every season since 2018</h2>
-      <p>
-        For most of baseball history a strikeout was far rarer than a hit. In 1920, AL and NL batters
+    <article class="finding" id="f1">
+      <div class="text">
+        <p class="label reveal">Finding 1</p>
+        <h3 class="reveal">Strikeouts have outnumbered hits every season since 2018</h3>
+        <p class="reveal">For most of baseball history a strikeout was far rarer than a hit. In 1920, AL and NL batters
         collected <strong>23,275 hits</strong> and struck out only <strong>7,247 times</strong> — more than
         three hits for every strikeout. The gap closed steadily for a century. In <strong>2018</strong>,
         strikeouts (<strong>41,207</strong>) passed hits (<strong>41,018</strong>) for the first time, and they
-        have stayed ahead in every season since, including 2025 (40,645 strikeouts vs. 40,138 hits).
-      </p>
-      <p>The dip in 2020 is the 60-game pandemic season, not a change in approach.</p>
-      <div class="chart-box"><canvas id="chart-so-h" aria-label="Line chart of total strikeouts and hits per season, 1901 to 2025"></canvas></div>
-      <p class="chart-caption">Total hits and strikeouts per season, AL + NL, 1901–2025.</p>
-    </section>
+        have stayed ahead in every season since, including 2025 (40,645 strikeouts vs. 40,138 hits).</p>
+        <p class="reveal">The dip in 2020 is the 60-game pandemic season, not a change in approach.</p>
+      </div>
+        <div class="chart-card reveal">
+          <h4>Total hits and strikeouts per season, AL + NL, 1901–2025.</h4>
+          <div class="chart-box"><canvas id="chart-so-h" role="img" aria-label="Line chart of total strikeouts and hits per season, 1901 to 2025"></canvas></div>
+          <ul class="legend"><li><i class="line" style="background:#2f3e52"></i>Hits</li><li><i class="line" style="background:#8f2a20"></i>Strikeouts</li></ul>
+        </div>
+    </article>
 
-    <section class="finding reveal" id="f2">
-      <span class="inning" aria-hidden="true">2</span>
-      <p class="kicker">2nd Inning · Finding 2</p>
-      <h2>The strikeout rate has more than doubled since the Live Ball era</h2>
-      <p>
-        Measured per plate appearance, the change is just as stark. During the Live Ball era (1920–41) hitters
+    <article class="finding" id="f2">
+      <div class="text">
+        <p class="label reveal">Finding 2</p>
+        <h3 class="reveal">The strikeout rate has more than doubled since the Live Ball era</h3>
+        <p class="reveal">Measured per plate appearance, the change is just as stark. During the Live Ball era (1920–41) hitters
         struck out in <strong>8.0%</strong> of plate appearances. The rate rose in almost every era after that,
         reaching <strong>16.6%</strong> in the Steroid era and <strong>20.5%</strong> in the Modern era
-        (2006–25). The single-season record is <strong>23.4% in 2020</strong>; in 2025 it was 22.2%.
-      </p>
-      <p>Today, more than one plate appearance in five ends in a strikeout.</p>
-      <div class="chart-box"><canvas id="chart-k" aria-label="Line chart of strikeout rate per plate appearance by season"></canvas></div>
-      <p class="chart-caption">Strikeouts ÷ plate appearances, AL + NL, 1876–2025.</p>
-    </section>
+        (2006–25). The single-season record is <strong>23.4% in 2020</strong>; in 2025 it was 22.2%.</p>
+        <p class="reveal">Today, more than one plate appearance in five ends in a strikeout.</p>
+      </div>
+        <div class="chart-card reveal">
+          <h4>Strikeouts ÷ plate appearances, AL + NL, 1876–2025.</h4>
+          <div class="chart-box"><canvas id="chart-k" role="img" aria-label="Line chart of strikeout rate per plate appearance by season"></canvas></div>
+        </div>
+    </article>
 
-    <section class="finding reveal" id="f3">
-      <span class="inning" aria-hidden="true">3</span>
-      <p class="kicker">3rd Inning · Finding 3</p>
-      <h2>The home run rate peaked in 2019</h2>
-      <p>
-        The trade-off for all those strikeouts is power. Home runs came in <strong>0.67%</strong> of plate
+    <article class="finding" id="f3">
+      <div class="text">
+        <p class="label reveal">Finding 3</p>
+        <h3 class="reveal">The home run rate peaked in 2019</h3>
+        <p class="reveal">The trade-off for all those strikeouts is power. Home runs came in <strong>0.67%</strong> of plate
         appearances in 1920; by <strong>2019</strong> the rate had climbed to <strong>3.63%</strong>, the highest
         in history — roughly one home run every 28 trips to the plate. That season <strong>58 players hit 30 or
         more home runs</strong>, more than in any other year, and more than in the peak Steroid-era seasons of
-        1999 (45) and 2000 (47).
-      </p>
-      <p>The rate has eased since then, to 3.09% in 2025, but remains far above any season before 1994.</p>
-      <div class="chart-box"><canvas id="chart-hr" aria-label="Line chart of home runs per plate appearance by season"></canvas></div>
-      <p class="chart-caption">Home runs ÷ plate appearances, AL + NL, 1876–2025.</p>
-    </section>
+        1999 (45) and 2000 (47).</p>
+        <p class="reveal">The rate has eased since then, to 3.09% in 2025, but remains far above any season before 1994.</p>
+      </div>
+        <div class="chart-card reveal">
+          <h4>Home runs ÷ plate appearances, AL + NL, 1876–2025.</h4>
+          <div class="chart-box"><canvas id="chart-hr" role="img" aria-label="Line chart of home runs per plate appearance by season"></canvas></div>
+        </div>
+    </article>
 
-    <section class="finding reveal" id="f4">
-      <span class="inning" aria-hidden="true">4</span>
-      <p class="kicker">4th Inning · Finding 4</p>
-      <h2>Singles make up a shrinking share of hits</h2>
-      <p>
-        In the National League's first season, 1876, <strong>84.0%</strong> of all hits were singles. That share
+    <article class="finding" id="f4">
+      <div class="text">
+        <p class="label reveal">Finding 4</p>
+        <h3 class="reveal">Singles make up a shrinking share of hits</h3>
+        <p class="reveal">In the National League's first season, 1876, <strong>84.0%</strong> of all hits were singles. That share
         has fallen almost continuously as hitters traded contact for extra-base power. It hit its low point of
-        <strong>61.7%</strong> in 2019 — the same year as the home run peak — and was 65.1% in 2025.
-      </p>
-      <p>Put another way: over a third of today's hits go for extra bases, compared with about one in six in 1876.</p>
-      <div class="chart-box"><canvas id="chart-singles" aria-label="Line chart of singles as a share of all hits by season"></canvas></div>
-      <p class="chart-caption">Singles ÷ hits, AL + NL, 1876–2025. Singles = hits − doubles − triples − home runs.</p>
-    </section>
+        <strong>61.7%</strong> in 2019 — the same year as the home run peak — and was 65.1% in 2025.</p>
+        <p class="reveal">Put another way: over a third of today's hits go for extra bases, compared with about one in six in 1876.</p>
+      </div>
+        <div class="chart-card reveal">
+          <h4>Singles ÷ hits, AL + NL, 1876–2025. Singles = hits − doubles − triples − home runs.</h4>
+          <div class="chart-box"><canvas id="chart-singles" role="img" aria-label="Line chart of singles as a share of all hits by season"></canvas></div>
+        </div>
+    </article>
 
     <!-- ================= PART 2 ================= -->
-    <h2 class="part-title reveal"><span class="num">PART 2</span>Eras of Offense</h2>
+    <div class="part reveal"><span class="num">Part two</span><h2>Eras of Offense</h2></div>
 
-    <section class="finding reveal" id="f5">
-      <span class="inning" aria-hidden="true">5</span>
-      <p class="kicker">5th Inning · Finding 5</p>
-      <h2>The Live Ball era was the best time to hit for average</h2>
-      <p>
-        After the dead-ball years ended in 1919, batting averages jumped. The Live Ball era (1920–41) had a
+    <figure class="banner reveal">
+      <div class="frame"><img src="img/cobb-1909.jpg" width="1800" height="856" loading="lazy" alt="Ty Cobb slides into third base in a cloud of dust as the third baseman leaps over him, with a packed grandstand behind, 1909."></div>
+      <figcaption>Ty Cobb slides into third base, 1909. His .366 career batting average is the highest among American and National League players with at least 5,000 at-bats. Photograph by Charles M. Conlon, public domain.</figcaption>
+    </figure>
+
+    <article class="finding" id="f5">
+      <div class="text">
+        <p class="label reveal">Finding 5</p>
+        <h3 class="reveal">The Live Ball era was the best time to hit for average</h3>
+        <p class="reveal">After the dead-ball years ended in 1919, batting averages jumped. The Live Ball era (1920–41) had a
         league batting average of <strong>.280</strong>, the highest of any era, well above the Dead Ball era
         (.254) and the Modern era (.254). The peak came in <strong>1930</strong>, when the league hit
         <strong>.296</strong> — the best season since 1901 — and <strong>60 qualified hitters batted .300 or
-        better</strong>, more than in any other season.
-      </p>
-      <div class="chart-box"><canvas id="chart-era-avg" aria-label="Bar chart of batting average by era"></canvas></div>
-      <p class="chart-caption">League batting average (hits ÷ at-bats) by era, AL + NL.</p>
-    </section>
+        better</strong>, more than in any other season.</p>
+      </div>
+        <div class="chart-card reveal">
+          <h4>League batting average (hits ÷ at-bats) by era, AL + NL.</h4>
+          <div class="chart-box"><canvas id="chart-era-avg" role="img" aria-label="Bar chart of batting average by era"></canvas></div>
+          <ul class="legend"><li><i class="" style="background:#8f2a20"></i>Live Ball era</li><li><i class="" style="background:#2f3e52"></i>Other eras</li></ul>
+        </div>
+    </article>
 
-    <section class="finding reveal" id="f6">
-      <span class="inning" aria-hidden="true">6</span>
-      <p class="kicker">6th Inning · Finding 6</p>
-      <h2>The Steroid era produced the most power</h2>
-      <p>
-        Slugging percentage — total bases per at-bat — tells a different story from batting average.
+    <article class="finding" id="f6">
+      <div class="text">
+        <p class="label reveal">Finding 6</p>
+        <h3 class="reveal">The Steroid era produced the most power</h3>
+        <p class="reveal">Slugging percentage — total bases per at-bat — tells a different story from batting average.
         The Steroid era (1994–2005) had the highest league slugging percentage of any era at
         <strong>.424</strong>, ahead of the Modern era (<strong>.410</strong>) and far above the Dead Ball era
-        (<strong>.331</strong>).
-      </p>
-      <p>
-        The Modern era hits for less average than the Steroid era (.254 vs. .267) but nearly as much power —
-        which fits the strikeout-and-home-run pattern in Part 1.
-      </p>
-      <div class="chart-box"><canvas id="chart-era-slg" aria-label="Bar chart of slugging percentage by era"></canvas></div>
-      <p class="chart-caption">League slugging percentage (total bases ÷ at-bats) by era, AL + NL.</p>
-    </section>
+        (<strong>.331</strong>).</p>
+        <p class="reveal">The Modern era hits for less average than the Steroid era (.254 vs. .267) but nearly as much power —
+        which fits the strikeout-and-home-run pattern in Part 1.</p>
+      </div>
+        <div class="chart-card reveal">
+          <h4>League slugging percentage (total bases ÷ at-bats) by era, AL + NL.</h4>
+          <div class="chart-box"><canvas id="chart-era-slg" role="img" aria-label="Bar chart of slugging percentage by era"></canvas></div>
+          <ul class="legend"><li><i class="" style="background:#8f2a20"></i>Steroid era</li><li><i class="" style="background:#2f3e52"></i>Other eras</li></ul>
+        </div>
+    </article>
 
-    <section class="finding reveal" id="f7">
-      <span class="inning" aria-hidden="true">7</span>
-      <p class="kicker">7th Inning · Finding 7</p>
-      <h2>The .300 hitter is disappearing</h2>
-      <p>
-        In 1999, <strong>54 of 154</strong> qualified hitters batted .300 or better. In 2025, only
+    <article class="finding" id="f7">
+      <div class="text">
+        <p class="label reveal">Finding 7</p>
+        <h3 class="reveal">The .300 hitter is disappearing</h3>
+        <p class="reveal">In 1999, <strong>54 of 154</strong> qualified hitters batted .300 or better. In 2025, only
         <strong>7 of 144</strong> did. The league-wide average tells the same story: in 2022 it fell to
-        <strong>.243</strong>, the lowest since the "Year of the Pitcher" in 1968 (.237), and it was .245 in 2025.
-      </p>
-      <p>A qualified hitter has at least 3.1 plate appearances per team game — 502 in a 162-game season.</p>
-      <div class="chart-box"><canvas id="chart-300" aria-label="Column chart of qualified hitters batting .300 or better per season"></canvas></div>
-      <p class="chart-caption">Number of qualified hitters with a batting average of .300 or better, AL + NL, 1901–2025.</p>
-    </section>
+        <strong>.243</strong>, the lowest since the "Year of the Pitcher" in 1968 (.237), and it was .245 in 2025.</p>
+        <p class="reveal">A qualified hitter has at least 3.1 plate appearances per team game — 502 in a 162-game season.</p>
+      </div>
+        <div class="chart-card reveal">
+          <h4>Number of qualified hitters with a batting average of .300 or better, AL + NL, 1901–2025.</h4>
+          <div class="chart-box"><canvas id="chart-300" role="img" aria-label="Column chart of qualified hitters batting .300 or better per season"></canvas></div>
+          <ul class="legend"><li><i class="" style="background:#8f2a20"></i>Seasons cited in the text: 1930, 1999 and 2025</li><li><i class="" style="background:#2f3e52"></i>Other seasons</li></ul>
+        </div>
+    </article>
 
     <!-- ================= PART 3 ================= -->
-    <h2 class="part-title reveal"><span class="num">PART 3</span>Players &amp; Careers</h2>
+    <div class="part reveal"><span class="num">Part three</span><h2>Players &amp; Careers</h2></div>
 
-    <section class="finding reveal" id="f8">
-      <span class="inning" aria-hidden="true">8</span>
-      <p class="kicker">8th Inning · Finding 8</p>
-      <h2>Nearly three in ten players are now born outside the US</h2>
-      <p>
-        In the 1920s and 1930s only <strong>1.8%</strong> of AL and NL players were born outside the United
+    <article class="finding" id="f8">
+      <div class="text">
+        <p class="label reveal">Finding 8</p>
+        <h3 class="reveal">Nearly three in ten players are now born outside the US</h3>
+        <p class="reveal">In the 1920s and 1930s only <strong>1.8%</strong> of AL and NL players were born outside the United
         States. The share began to climb after integration in 1947 and accelerated in the 1990s, reaching
         <strong>28.8%</strong> in the 2020s. In 2025 the <strong>Dominican Republic (62 players)</strong> and
-        <strong>Venezuela (56)</strong> sent the most, followed by Cuba (20) and Puerto Rico (19).
-      </p>
-      <p>
-        The 1870s and 1880s show an earlier bump (9.2% and 8.7%) from players born in Ireland, Canada and
-        England during the first era of pro baseball.
-      </p>
-      <div class="chart-box"><canvas id="chart-foreign" aria-label="Column chart of the share of players born outside the US by decade"></canvas></div>
-      <p class="chart-caption">Share of AL + NL players born outside the US, by decade. Each player counts once per decade; players with an unknown birthplace are excluded.</p>
-    </section>
+        <strong>Venezuela (56)</strong> sent the most, followed by Cuba (20) and Puerto Rico (19).</p>
+        <p class="reveal">The 1870s and 1880s show an earlier bump (9.2% and 8.7%) from players born in Ireland, Canada and
+        England during the first era of pro baseball.</p>
+      </div>
+        <div class="chart-card reveal">
+          <h4>Share of AL + NL players born outside the US, by decade. Each player counts once per decade; players with an unknown birthplace are excluded.</h4>
+          <div class="chart-box"><canvas id="chart-foreign" role="img" aria-label="Column chart of the share of players born outside the US by decade"></canvas></div>
+          <ul class="legend"><li><i class="" style="background:#8f2a20"></i>2020s</li><li><i class="" style="background:#2f3e52"></i>Earlier decades</li></ul>
+        </div>
+    </article>
 
-    <section class="finding reveal" id="f9">
-      <span class="inning" aria-hidden="true">9</span>
-      <p class="kicker">9th Inning · Finding 9</p>
-      <h2>Left-handed hitters reach base more often</h2>
-      <p>
-        Since 2006, left-handed batters have posted a <strong>.329</strong> on-base percentage, compared with
+    <article class="finding" id="f9">
+      <div class="text">
+        <p class="label reveal">Finding 9</p>
+        <h3 class="reveal">Left-handed hitters reach base more often</h3>
+        <p class="reveal">Since 2006, left-handed batters have posted a <strong>.329</strong> on-base percentage, compared with
         <strong>.317</strong> for right-handed batters and <strong>.325</strong> for switch-hitters. Batting
         averages are nearly identical (.254 vs. .253 vs. .254), so the lefties' edge comes from walks, not
         hits: left-handed hitters walked in <strong>9.3%</strong> of plate appearances, compared with
-        <strong>7.7%</strong> for right-handed hitters.
-      </p>
-      <p>Left-handed hitters took <strong>32.7%</strong> of all plate appearances in this period; right-handed hitters 54.4% and switch-hitters 13.0%.</p>
-      <div class="chart-box short"><canvas id="chart-hand" aria-label="Bar chart of on-base percentage by batting hand, 2006 to 2025"></canvas></div>
-      <p class="chart-caption">On-base percentage by batting hand, AL + NL, 2006–2025. Players with unknown batting hand excluded.</p>
-    </section>
+        <strong>7.7%</strong> for right-handed hitters.</p>
+        <p class="reveal">Left-handed hitters took <strong>32.7%</strong> of all plate appearances in this period; right-handed hitters 54.4% and switch-hitters 13.0%.</p>
+      </div>
+        <div class="chart-card reveal">
+          <h4>On-base percentage by batting hand, AL + NL, 2006–2025. Players with unknown batting hand excluded.</h4>
+          <div class="chart-box short"><canvas id="chart-hand" role="img" aria-label="Bar chart of on-base percentage by batting hand, 2006 to 2025"></canvas></div>
+          <ul class="legend"><li><i class="" style="background:#8f2a20"></i>Left-handed hitters</li><li><i class="" style="background:#2f3e52"></i>Right-handed and switch-hitters</li></ul>
+        </div>
+    </article>
 
-    <section class="finding reveal" id="f10">
-      <span class="inning" aria-hidden="true">10</span>
-      <p class="kicker">Extra Innings · Finding 10</p>
-      <h2>Six of the top ten career home run hitters played in the Steroid era</h2>
-      <p>
-        <strong>Barry Bonds (762)</strong> leads the all-time list, ahead of Hank Aaron (755), Babe Ruth (714),
+    <article class="finding with-photo" id="f10">
+      <div>
+        <div class="text">
+        <p class="label reveal">Finding 10</p>
+        <h3 class="reveal">Six of the top ten career home run hitters played in the Steroid era</h3>
+        <p class="reveal"><strong>Barry Bonds (762)</strong> leads the all-time list, ahead of Hank Aaron (755), Babe Ruth (714),
         Albert Pujols (703) and Alex Rodriguez (696). Six of the top ten — Bonds, Pujols, Rodriguez,
-        Ken Griffey Jr., Jim Thome and Sammy Sosa — played during the Steroid era (1994–2005).
-      </p>
-      <p>
-        Career totals here include every league in the data set, so Willie Mays's total (660) includes his
-        1948 season with the Negro American League's Birmingham Black Barons.
-      </p>
-      <div class="chart-box tall"><canvas id="chart-career" aria-label="Bar chart of the top ten career home run leaders"></canvas></div>
-      <p class="chart-caption">Career home runs, all leagues in the data. Bars in red are players whose careers overlapped the Steroid era (1994–2005).</p>
-    </section>
+        Ken Griffey Jr., Jim Thome and Sammy Sosa — played during the Steroid era (1994–2005).</p>
+        <p class="reveal">Career totals here include every league in the data set, so Willie Mays's total (660) includes his
+        1948 season with the Negro American League's Birmingham Black Barons.</p>
+        </div>
+        <div class="chart-card reveal">
+          <h4>Career home runs, all leagues in the data. Bars in red are players whose careers overlapped the Steroid era (1994–2005).</h4>
+          <div class="chart-box tall"><canvas id="chart-career" role="img" aria-label="Bar chart of the top ten career home run leaders"></canvas></div>
+          <ul class="legend"><li><i class="" style="background:#8f2a20"></i>Career overlapped the Steroid era (1994–2005)</li><li><i class="" style="background:#2f3e52"></i>Other careers</li></ul>
+        </div>
+      </div>
+      <figure class="photo reveal">
+        <div class="frame"><img src="img/ruth-1927.jpg" width="1000" height="1249" loading="lazy" alt="Babe Ruth in Yankees pinstripes taking a warm-up swing in front of a crowded grandstand, about 1927."></div>
+        <figcaption>Babe Ruth takes a warm-up swing, c.&nbsp;1927. Photograph by Charles M. Conlon, public domain.</figcaption>
+      </figure>
+    </article>
 
     <!-- ================= ABOUT ================= -->
     <section class="about reveal" id="about-data">
       <h2>About the data</h2>
-
-      <h3>Source</h3>
-      <p>
+      <div class="about-grid">
+        <div>
+          <h3>Source</h3>
+          <p>
         The <a href="https://sabr.org/lahman-database/">Lahman Baseball Database</a> (1871–2025 release,
         December 10, 2025), maintained by the Society for American Baseball Research (SABR). The site uses four of
         its tables: <code>Batting</code> (the season batting lines), <code>People</code> (name, batting hand and
         birth country), <code>Teams</code> and <code>TeamsFranchises</code> (team and franchise names).
       </p>
-
-      <h3>What one row is</h3>
-      <p>
+        </div>
+        <div>
+          <h3>What one row is</h3>
+          <p>
         One row is one player's batting line for one team in one season. A player traded mid-season has one row
         for each team. When the report ranks individual seasons (qualified hitters, 30-home-run hitters) a
         player's rows for the same season are added together first.
       </p>
-
-      <h3>Rows dropped</h3>
-      <p>
+        </div>
+        <div>
+          <h3>Rows dropped</h3>
+          <p>
         The raw <code>Batting</code> table has 128,598 rows. I dropped <strong>22,128</strong> rows with zero
         at-bats — mostly pitchers who appeared in games without batting — leaving <strong>106,470</strong> rows.
         No other rows were removed.
       </p>
-
-      <h3>Which leagues</h3>
-      <p>
+        </div>
+        <div>
+          <h3>Which leagues</h3>
+          <p>
         The data covers every league SABR recognizes as major: the American and National Leagues, the Negro
         Leagues (1920–50, plus major-league-caliber independent Black clubs from 1891), and the early National
         Association, American Association, Union Association, Players' League and Federal League.
@@ -325,9 +341,10 @@
         appearances), so the dashboard leaves Negro League rows out of all strikeout numbers. Finding 10 (career
         totals) uses every league. The dashboard lets you filter by league group.
       </p>
-
-      <h3>How each number is calculated</h3>
-      <ul>
+        </div>
+        <div class="formulas">
+          <h3>How each number is calculated</h3>
+          <ul>
         <li><strong>Every league or era rate is built from totals</strong> — for example, total hits ÷ total at-bats — not an average of individual players' rates.</li>
         <li><strong>Batting average (AVG)</strong> = H ÷ AB.</li>
         <li><strong>On-base percentage (OBP)</strong> = (H + BB + HBP) ÷ (AB + BB + HBP + SF).</li>
@@ -339,22 +356,56 @@
         <li><strong>Foreign-born share</strong> = players born outside the US ÷ players with a known birth country, counting each player once per decade.</li>
         <li><strong>Eras</strong>: 19th Century (1871–1900), Dead Ball (1901–19), Live Ball (1920–41), Integration (1942–60), Expansion (1961–76), Free Agency (1977–93), Steroid (1994–2005), Modern (2006–25).</li>
       </ul>
-
-      <h3>Reproducing the numbers</h3>
-      <p>
+        </div>
+        <div>
+          <h3>Reproducing the numbers</h3>
+          <p>
         Running <code>python scripts/build_data.py</code> rebuilds <code>data/batting_clean.csv</code> from the
         raw files, and <code>python scripts/report_stats.py</code> computes every number on this page into
         <code>data/report_numbers.json</code>, which the charts load.
       </p>
+        </div>
+        <div>
+          <h3>Photographs</h3>
+          <p>Both photographs are by Charles M. Conlon and are in the public domain, via Wikimedia Commons. They were cropped and toned to match the page.</p>
+        </div>
+      </div>
     </section>
 
   </main>
 
-  <footer>Built by Drew Vuduris for Financial Data Analytics · Data: Lahman Baseball Database (SABR), 1871–2025</footer>
+  <footer>
+    <div class="wrap footer-inner">
+      <svg class="crest" viewBox="0 0 200 200" role="img" aria-label="The Box Score emblem: crossed bats and a ball, 1871 to 2025">
+        <defs>
+          <path id="ring-top" d="M 34 100 A 66 66 0 0 1 166 100"/>
+          <path id="ring-bottom" d="M 28 100 A 72 72 0 0 0 172 100"/>
+        </defs>
+        <circle cx="100" cy="100" r="96" fill="#f2ebdc" stroke="#1e1a15" stroke-width="3"/>
+        <circle cx="100" cy="100" r="90" fill="none" stroke="#1e1a15" stroke-width="1"/>
+        <circle cx="100" cy="100" r="50" fill="none" stroke="#1e1a15" stroke-width="1.5"/>
+        <text font-family="Libre Caslon Text, Georgia, serif" font-size="20" letter-spacing="2" fill="#1e1a15" text-anchor="middle"><textPath href="#ring-top" startOffset="50%">THE BOX SCORE</textPath></text>
+        <text font-family="Libre Caslon Text, Georgia, serif" font-size="20" letter-spacing="2" fill="#8f2a20" text-anchor="middle" dominant-baseline="hanging"><textPath href="#ring-bottom" startOffset="50%">1871 · 2025</textPath></text>
+        <g fill="#8f2a20"><circle cx="26" cy="100" r="3"/><circle cx="174" cy="100" r="3"/></g>
+        <g fill="#1e1a15" transform="translate(100 100) scale(0.62) translate(-100 -100)">
+          <g transform="rotate(38 100 100)"><path d="M97.4 158 L96.6 116 Q94.6 84 93.6 60 Q93.4 44 100 43 Q106.6 44 106.4 60 Q105.4 84 103.4 116 L102.6 158 Z"/><ellipse cx="100" cy="160" rx="6" ry="3"/></g>
+          <g transform="rotate(-38 100 100)"><path d="M97.4 158 L96.6 116 Q94.6 84 93.6 60 Q93.4 44 100 43 Q106.6 44 106.4 60 Q105.4 84 103.4 116 L102.6 158 Z"/><ellipse cx="100" cy="160" rx="6" ry="3"/></g>
+          <circle cx="100" cy="100" r="19" fill="#f2ebdc" stroke="#1e1a15" stroke-width="3.5"/>
+          <g fill="none" stroke="#8f2a20" stroke-width="3" stroke-linecap="round"><path d="M89 87 Q97 100 89 113"/><path d="M111 87 Q103 100 111 113"/></g>
+        </g>
+      </svg>
+      <div>
+        <p class="title">The Box Score</p>
+        <p>A statistical history of major league batting by Drew Vuduris, for Financial Data Analytics.</p>
+        <p>Data: Lahman Baseball Database (SABR), 1871–2025. An independent student project, not affiliated with Major League Baseball.</p>
+      </div>
+    </div>
+  </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="js/site.js"></script>
   <script src="js/charts-common.js"></script>
   <script src="js/report.js"></script>
-  <script type="module" src="js/hero3d.js"></script>
+  <script type="module" src="js/hero-ball.js"></script>
 </body>
 </html>
