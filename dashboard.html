@@ -1,82 +1,83 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="night">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MLB Batting Dashboard</title>
-  <meta name="description" content="Filter 106,470 MLB batting lines from 1871 to 2025 and see the numbers change.">
+  <title>Dashboard · The Box Score</title>
+  <meta name="description" content="Filter 106,470 major league batting lines from 1871 to 2025 and see the numbers change.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Graduate&family=Orbitron:wght@500;700&family=Roboto+Slab:wght@500;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600&family=Inter:wght@400;500;600&family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-  <script src="js/site.js"></script>
 </head>
 <body>
 
-  <nav class="nav">
-    <div class="nav-inner">
-      <a class="nav-brand" href="index.html">⚾ MLB BATTING</a>
-      <a class="nav-link" href="index.html">Report</a>
-      <a class="nav-link active" href="dashboard.html">Dashboard</a>
-      <a class="nav-link" href="index.html#about-data">About the Data</a>
-      <button class="theme-toggle" id="theme-toggle" type="button"><span class="knob" aria-hidden="true"></span><span class="txt">Night game</span></button>
+  <nav class="nav" aria-label="Main">
+    <div class="wrap nav-inner">
+      <a class="brand" href="index.html"><img src="img/emblem-mark.svg" alt="" width="34" height="34"><span>The Box Score</span></a>
+      <a class="link" href="index.html">Report</a>
+      <a class="link active" href="dashboard.html" aria-current="page">Dashboard</a>
+      <a class="link hide-sm" href="index.html#about-data">About the Data</a>
     </div>
   </nav>
 
-  <header class="hero hero-small">
-    <div class="wrap">
-      <h1>Batting Dashboard</h1>
-      <p class="summary">Filter every MLB batting line from 1871 to 2025. All numbers are calculated in your browser
-        from <code>data/batting_clean.csv</code>, using the same formulas as the report.</p>
-    </div>
-  </header>
-
   <main class="wrap">
 
-    <div id="loading" class="loading"><span class="ball" aria-hidden="true"></span>Loading 106,470 batting lines…</div>
+    <header class="page-head">
+      <h1>The Dashboard</h1>
+      <p>Filter every major league batting line from 1871 to 2025. Every number is calculated in your browser
+        from <code>data/batting_clean.csv</code>, using the same formulas as the report.</p>
+    </header>
+
+    <div id="loading" class="loading"><span class="dot" aria-hidden="true"></span>Loading 106,470 batting lines…</div>
 
     <div id="dash" hidden>
       <!-- Filters -->
-      <section class="panel filters" aria-label="Filters">
-        <div class="field">
-          <label for="f-from">From year</label>
-          <select id="f-from"></select>
-        </div>
-        <div class="field">
-          <label for="f-to">To year</label>
-          <select id="f-to"></select>
-        </div>
-        <div class="field">
-          <label for="f-league">League</label>
-          <select id="f-league">
-            <option value="MLB">AL + NL</option>
-            <option value="ALL">All leagues</option>
-            <option value="American League">American League</option>
-            <option value="National League">National League</option>
-            <option value="Negro Leagues">Negro Leagues</option>
-            <option value="Early Leagues">Early leagues (NA, AA, UA, PL, FL)</option>
-          </select>
-        </div>
-        <div class="field wide">
-          <label for="f-franchise">Team (franchise)</label>
-          <select id="f-franchise"></select>
-        </div>
-        <div class="field">
-          <label for="f-bats">Batting hand</label>
-          <select id="f-bats">
-            <option value="ALL">All</option>
-            <option>Right</option>
-            <option>Left</option>
-            <option>Switch</option>
-            <option>Unknown</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="f-country">Birth country</label>
-          <select id="f-country"></select>
-        </div>
-        <div class="field field-btn">
-          <button id="reset" class="btn-reset" type="button">Reset all filters</button>
+      <section class="panel" aria-labelledby="filters-title">
+        <h3 id="filters-title">Filters</h3>
+        <p class="note">Narrow the data. Everything below updates as you choose.</p>
+        <div class="filters">
+          <div class="field">
+            <label for="f-from">From season</label>
+            <select id="f-from"></select>
+          </div>
+          <div class="field">
+            <label for="f-to">To season</label>
+            <select id="f-to"></select>
+          </div>
+          <div class="field">
+            <label for="f-league">League</label>
+            <select id="f-league">
+              <option value="MLB">AL + NL</option>
+              <option value="ALL">All leagues</option>
+              <option value="American League">American League</option>
+              <option value="National League">National League</option>
+              <option value="Negro Leagues">Negro Leagues</option>
+              <option value="Early Leagues">Early leagues (NA, AA, UA, PL, FL)</option>
+            </select>
+          </div>
+          <div class="field wide">
+            <label for="f-franchise">Team (franchise)</label>
+            <select id="f-franchise"></select>
+          </div>
+          <div class="field">
+            <label for="f-bats">Batting hand</label>
+            <select id="f-bats">
+              <option value="ALL">All</option>
+              <option>Right</option>
+              <option>Left</option>
+              <option>Switch</option>
+              <option>Unknown</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-country">Birth country</label>
+            <select id="f-country"></select>
+          </div>
+          <div class="field field-btn">
+            <button id="reset" class="btn-reset" type="button">Reset all filters</button>
+          </div>
         </div>
       </section>
 
@@ -92,46 +93,50 @@
         </div>
       </section>
 
-      <p class="view-note" id="view-note"></p>
+      <p class="view-note" id="view-note" aria-live="polite"></p>
 
-      <!-- Summary numbers -->
-      <section class="scoreboard dash-board" aria-label="Summary numbers">
-        <p class="board-title">★ CURRENT VIEW ★</p>
-        <div class="tiles" id="tiles"></div>
+      <!-- Summary numbers on the scoreboard -->
+      <section class="board dash-board" aria-label="Summary numbers for the current view">
+        <div class="board-head">
+          <h2>CURRENT VIEW</h2>
+          <p>Updates with every filter.</p>
+        </div>
+        <div class="plates" id="tiles"></div>
       </section>
 
       <!-- Charts -->
       <section class="chart-grid">
-        <div class="panel chart-panel span-2">
+        <div class="panel span-2">
           <h3 id="t-trend"></h3>
-          <div class="chart-box"><canvas id="c-trend"></canvas></div>
-          <p class="chart-caption" id="n-trend"></p>
+          <p class="note" id="n-trend"></p>
+          <div class="chart-box"><canvas id="c-trend" role="img" aria-label="Line chart of the selected measure by season"></canvas></div>
         </div>
-        <div class="panel chart-panel">
+        <div class="panel">
           <h3 id="t-by"></h3>
-          <div class="chart-box"><canvas id="c-by"></canvas></div>
-          <p class="chart-caption" id="n-by"></p>
+          <p class="note" id="n-by"></p>
+          <div class="chart-box"><canvas id="c-by" role="img" aria-label="Bar chart of the selected measure by the selected breakdown"></canvas></div>
         </div>
-        <div class="panel chart-panel">
+        <div class="panel">
           <h3 id="t-decade"></h3>
-          <div class="chart-box"><canvas id="c-decade"></canvas></div>
-          <p class="chart-caption" id="n-decade"></p>
+          <p class="note" id="n-decade"></p>
+          <div class="chart-box"><canvas id="c-decade" role="img" aria-label="Column chart of the selected measure by decade"></canvas></div>
         </div>
-        <div class="panel chart-panel">
+        <div class="panel">
           <h3 id="t-players"></h3>
-          <div class="chart-box"><canvas id="c-players"></canvas></div>
-          <p class="chart-caption" id="n-players"></p>
+          <p class="note" id="n-players"></p>
+          <div class="chart-box"><canvas id="c-players" role="img" aria-label="Bar chart of the top ten players on the selected measure"></canvas></div>
         </div>
-        <div class="panel chart-panel">
+        <div class="panel">
           <h3 id="t-share"></h3>
-          <div class="chart-box"><canvas id="c-share"></canvas></div>
-          <p class="chart-caption" id="n-share"></p>
+          <p class="note" id="n-share"></p>
+          <div class="chart-box"><canvas id="c-share" role="img" aria-label="Bar chart of each group's share of plate appearances"></canvas></div>
         </div>
       </section>
 
       <!-- Table -->
       <section class="panel">
         <h3 id="t-table"></h3>
+        <p class="note">The highlighted column is the measure selected above.</p>
         <div class="table-scroll">
           <table class="data" id="table"></table>
         </div>
@@ -139,10 +144,37 @@
     </div>
   </main>
 
-  <footer>Built by Drew Vuduris for Financial Data Analytics · Data: Lahman Baseball Database (SABR), 1871–2025</footer>
+  <footer>
+    <div class="wrap footer-inner">
+      <svg class="crest" viewBox="0 0 200 200" role="img" aria-label="The Box Score emblem: crossed bats and a ball, 1871 to 2025">
+        <defs>
+          <path id="ring-top" d="M 34 100 A 66 66 0 0 1 166 100"/>
+          <path id="ring-bottom" d="M 28 100 A 72 72 0 0 0 172 100"/>
+        </defs>
+        <circle cx="100" cy="100" r="96" fill="#f2ebdc" stroke="#1e1a15" stroke-width="3"/>
+        <circle cx="100" cy="100" r="90" fill="none" stroke="#1e1a15" stroke-width="1"/>
+        <circle cx="100" cy="100" r="50" fill="none" stroke="#1e1a15" stroke-width="1.5"/>
+        <text font-family="Libre Caslon Text, Georgia, serif" font-size="20" letter-spacing="2" fill="#1e1a15" text-anchor="middle"><textPath href="#ring-top" startOffset="50%">THE BOX SCORE</textPath></text>
+        <text font-family="Libre Caslon Text, Georgia, serif" font-size="20" letter-spacing="2" fill="#8f2a20" text-anchor="middle" dominant-baseline="hanging"><textPath href="#ring-bottom" startOffset="50%">1871 · 2025</textPath></text>
+        <g fill="#8f2a20"><circle cx="26" cy="100" r="3"/><circle cx="174" cy="100" r="3"/></g>
+        <g fill="#1e1a15" transform="translate(100 100) scale(0.62) translate(-100 -100)">
+          <g transform="rotate(38 100 100)"><path d="M97.4 158 L96.6 116 Q94.6 84 93.6 60 Q93.4 44 100 43 Q106.6 44 106.4 60 Q105.4 84 103.4 116 L102.6 158 Z"/><ellipse cx="100" cy="160" rx="6" ry="3"/></g>
+          <g transform="rotate(-38 100 100)"><path d="M97.4 158 L96.6 116 Q94.6 84 93.6 60 Q93.4 44 100 43 Q106.6 44 106.4 60 Q105.4 84 103.4 116 L102.6 158 Z"/><ellipse cx="100" cy="160" rx="6" ry="3"/></g>
+          <circle cx="100" cy="100" r="19" fill="#f2ebdc" stroke="#1e1a15" stroke-width="3.5"/>
+          <g fill="none" stroke="#8f2a20" stroke-width="3" stroke-linecap="round"><path d="M89 87 Q97 100 89 113"/><path d="M111 87 Q103 100 111 113"/></g>
+        </g>
+      </svg>
+      <div>
+        <p class="title">The Box Score</p>
+        <p>A statistical history of major league batting by Drew Vuduris, for Financial Data Analytics.</p>
+        <p>Data: Lahman Baseball Database (SABR), 1871–2025. An independent student project, not affiliated with Major League Baseball.</p>
+      </div>
+    </div>
+  </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="js/site.js"></script>
   <script src="js/charts-common.js"></script>
   <script src="js/dashboard.js"></script>
 </body>

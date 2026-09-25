@@ -123,16 +123,11 @@ function renderTiles(t) {
   const box = $("tiles");
   if (!box.children.length) {
     box.innerHTML = tiles
-      .map(([, l]) => `<div class="board-tile"><span class="sb-value"></span><span class="label">${l}</span></div>`)
+      .map(([, l]) => `<div class="plate"><span class="plate-num"><span></span></span><span class="plate-label">${l}</span></div>`)
       .join("");
   }
-  // Scoreboard digits flip only where the number changed.
-  box.querySelectorAll(".sb-value").forEach((el, i) => {
-    const v = tiles[i][0];
-    if (el.dataset.value === v) return;
-    el.dataset.value = v;
-    flapTo(el, v, { spins: 3, stagger: 45 });
-  });
+  // A plate slides down into place only where its number changed.
+  box.querySelectorAll(".plate-num span").forEach((el, i) => setPlate(el, tiles[i][0]));
 }
 
 function setChart(id, config) {
@@ -202,7 +197,7 @@ function fixedColor(cat, i) {
 function renderByCategory(m, bd, groups, cats) {
   const shown = state.by === "franchise" ? cats.slice(0, 12) : cats;
   const values = shown.map((c) => m.calc(groups.get(c)));
-  const horizontal = shown.length > 6;
+  const horizontal = shown.length > 6 || (shown.length > 3 && isNarrow($("c-by")));
   const options = barOptions({ horizontal, valueFormat: m.fmt });
   options.plugins.barValueLabels = { format: m.fmt };
   options.plugins.tooltip = {
@@ -212,6 +207,7 @@ function renderByCategory(m, bd, groups, cats) {
     },
   };
   options.layout = horizontal ? { padding: { right: 48 } } : { padding: { top: 18 } };
+  if (horizontal) fitBarHeight($("c-by"), shown); else $("c-by").parentElement.style.height = "";
   const ds = horizontal ? horizontalBarDataset(values, COLORS.navy, m.label) : barDataset(values, COLORS.navy, m.label);
   setChart("c-by", { type: "bar", data: { labels: shown, datasets: [ds] }, options });
   $("t-by").textContent = `${m.label} by ${bd.label.toLowerCase()}`;
@@ -225,6 +221,7 @@ function renderDecade(rows, m) {
   const decades = [...groups.keys()].sort((a, b) => a - b);
   const values = decades.map((d) => m.calc(groups.get(d)));
   const options = barOptions({ valueFormat: m.fmt });
+  options.scales.x.ticks = { ...options.scales.x.ticks, maxRotation: 0, autoSkip: true, autoSkipPadding: 10 };
   options.plugins.tooltip = { callbacks: { label: (item) => `${m.label}: ${m.fmt(item.raw)}` } };
   setChart("c-decade", {
     type: "bar",
@@ -262,6 +259,7 @@ function renderPlayers(rows, m) {
     .sort((a, b) => b.v - a.v)
     .slice(0, 10);
 
+  fitBarHeight($("c-players"), list.map((p) => p.name));
   const options = barOptions({ horizontal: true, valueFormat: measure.fmt });
   options.plugins.barValueLabels = { format: measure.fmt };
   options.plugins.tooltip = { callbacks: { label: (item) => `${measure.label}: ${measure.fmt(item.raw)}` } };
@@ -279,12 +277,13 @@ function renderPlayers(rows, m) {
 function renderShare(bd, groups, cats, total) {
   const shown = state.by === "franchise" ? cats.slice(0, 12) : cats;
   const values = shown.map((c) => pct(groups.get(c).PA, total.PA));
-  const horizontal = shown.length > 6;
+  const horizontal = shown.length > 6 || (shown.length > 3 && isNarrow($("c-by")));
   const f = (v) => fmt.pct(v);
   const options = barOptions({ horizontal, valueFormat: (v) => v + "%" });
   options.plugins.barValueLabels = { format: f };
   options.plugins.tooltip = { callbacks: { label: (item) => `Share of plate appearances: ${f(item.raw)}` } };
   options.layout = horizontal ? { padding: { right: 48 } } : { padding: { top: 18 } };
+  if (horizontal) fitBarHeight($("c-share"), shown); else $("c-share").parentElement.style.height = "";
   const ds = horizontal ? horizontalBarDataset(values, COLORS.navy, "Share of PA") : barDataset(values, COLORS.navy, "Share of PA");
   setChart("c-share", { type: "bar", data: { labels: shown, datasets: [ds] }, options });
   $("t-share").textContent = `Share of plate appearances by ${bd.label.toLowerCase()}`;
@@ -309,8 +308,9 @@ function renderTable(bd, groups, cats, total) {
   ];
   const hl = (key) => (key === state.measure ? ' class="num hl"' : ' class="num"');
   const head = `<thead><tr><th>${bd.label}</th>${cols.map(([h, , k]) => `<th${hl(k)}>${h}</th>`).join("")}</tr></thead>`;
-  const body = cats.map((c) => `<tr><td>${c}</td>${cols.map(([, f, k]) => `<td${hl(k)}>${f(groups.get(c))}</td>`).join("")}</tr>`).join("");
-  const foot = `<tfoot><tr><td>Total</td>${cols.map(([, f, k]) => `<td${hl(k)}>${f(total)}</td>`).join("")}</tr></tfoot>`;
+  const cell = (h, k, v) => `<td${hl(k)} data-label="${h}">${v}</td>`;
+  const body = cats.map((c) => `<tr><td>${c}</td>${cols.map(([h, f, k]) => cell(h, k, f(groups.get(c)))).join("")}</tr>`).join("");
+  const foot = `<tfoot><tr><td>Total</td>${cols.map(([h, f, k]) => cell(h, k, f(total))).join("")}</tr></tfoot>`;
   $("table").innerHTML = head + `<tbody>${body}</tbody>` + foot;
   $("t-table").textContent = `The numbers behind this view, by ${bd.label.toLowerCase()}`;
 }
@@ -395,7 +395,8 @@ Papa.parse("data/batting_clean.csv", {
   download: true,
   header: true,
   skipEmptyLines: true,
-  complete: (res) => {
+  complete: async (res) => {
+    await document.fonts.ready; // chart labels are measured in the page's web fonts
     ROWS = res.data.map((r) => ({
       year: Number(r.year), era: r.era, playerID: r.playerID, name: r.name, bats: r.bats,
       country: r.country, franchise: r.franchise, lgGroup: r.lgGroup,
@@ -411,7 +412,6 @@ Papa.parse("data/batting_clean.csv", {
     $("dash").hidden = false;
     buildControls();
     render();
-    window.addEventListener("themechange", () => { refreshColors(); render(); });
   },
   error: (err) => {
     $("loading").textContent = "The data file could not be loaded. If you opened this page directly from disk, serve the folder instead (see README).";
